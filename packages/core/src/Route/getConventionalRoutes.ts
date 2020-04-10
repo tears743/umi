@@ -13,7 +13,10 @@ interface IOpts {
   config: IConfig;
 }
 
-const RE_DYNAMIC_ROUTE = /^\[(.+?)\]$/;
+// 考虑多种情况：
+// 可能是目录，没有后缀，比如 [post]/add.tsx
+// 可能是文件，有后缀，比如 [id].tsx
+const RE_DYNAMIC_ROUTE = /^\[(.+?)\]/;
 
 function getFiles(root: string) {
   if (!existsSync(root)) return [];
@@ -91,7 +94,7 @@ function fileToRouteReducer(opts: IOpts, memo: IRoute[], file: string) {
 }
 
 function normalizeRoute(route: IRoute, opts: IOpts) {
-  let props = {};
+  let props: unknown = undefined;
   if (route.component) {
     props = getExportProps(readFileSync(route.component, 'utf-8'));
     route.component = winPath(relative(join(opts.root, '..'), route.component));
@@ -99,7 +102,7 @@ function normalizeRoute(route: IRoute, opts: IOpts) {
   }
   return {
     ...route,
-    ...props,
+    ...(typeof props === 'object' ? props : {}),
   };
 }
 

@@ -1,3 +1,5 @@
+// Config for dumi
+
 function getMenus(opts: { lang?: string; base: '/docs' | '/plugins' }) {
   const menus = {
     '/plugins': [
@@ -53,7 +55,7 @@ function getMenus(opts: { lang?: string; base: '/docs' | '/plugins' }) {
           '/docs/routing',
           '/docs/convention-routing',
           '/docs/plugin',
-          // '/docs/navigate-between-pages',
+          '/docs/navigate-between-pages',
           '/docs/html-template',
           '/docs/mock',
           '/docs/env-variables',
@@ -100,6 +102,8 @@ function getMenus(opts: { lang?: string; base: '/docs' | '/plugins' }) {
   });
 }
 
+const isDev = process.env.NODE_ENV === 'development';
+
 export default {
   favicon: 'https://img.alicdn.com/tfs/TB1YHEpwUT1gK0jSZFhXXaAtVXa-28-27.svg',
   mode: 'site',
@@ -125,8 +129,15 @@ export default {
       path: 'https://github.com/umijs/umi',
     },
   ],
-  exportStatic: {},
-  analytics: {
-    ga: 'UA-149864185-1',
+  polyfill: false,
+  nodeModulesTransform: {
+    type: 'none',
   },
+  exportStatic: {},
+  dynamicImport: {},
+  analytics: isDev
+    ? false
+    : {
+        ga: 'UA-149864185-1',
+      },
 };

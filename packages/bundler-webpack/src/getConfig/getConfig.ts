@@ -11,9 +11,16 @@ import {
   getBabelPresetOpts,
   getTargetsAndBrowsersList,
 } from '@umijs/bundler-utils';
+import { lodash } from '@umijs/utils';
 import css, { createCSSRule } from './css';
 import terserOptions from './terserOptions';
 import { objToStringified } from './utils';
+import {
+  TYPE_ALL_EXCLUDE,
+  isMatch,
+  excludeToPkgs,
+  es5ImcompatibleVersionsToPkg,
+} from './nodeModulesTransform';
 
 export interface IOpts {
   cwd: string;
@@ -67,9 +74,10 @@ export default async function getConfig(
   if (entry) {
     Object.keys(entry).forEach((key) => {
       const e = webpackConfig.entry(key);
-      if (hot && isDev) {
-        e.add(require.resolve('../webpackHotDevClient/webpackHotDevClient'));
-      }
+      // 提供打包好的版本，不消耗 webpack 编译时间
+      // if (hot && isDev) {
+      //   e.add(require.resolve('../webpackHotDevClient/webpackHotDevClient'));
+      // }
       if (config.runtimePublicPath) {
         e.add(require.resolve('./runtimePublicPathEntry'));
       }
@@ -78,10 +86,14 @@ export default async function getConfig(
   }
 
   // devtool
+  const devtool = config.devtool as Config.DevTool;
   webpackConfig.devtool(
     isDev
-      ? (config.devtool as Config.DevTool) || 'cheap-module-source-map'
-      : (config.devtool as Config.DevTool),
+      ? // devtool 设为 false 时不 fallback 到 cheap-module-source-map
+        devtool === false
+        ? false
+        : devtool || 'cheap-module-source-map'
+      : devtool,
   );
 
   const useHash = config.hash && isProd;
@@ -176,22 +188,51 @@ export default async function getConfig(
         .options(babelOpts);
 
   // prettier-ignore
-  webpackConfig.module
+  const rule = webpackConfig.module
     .rule('js-in-node_modules')
-      .test(/\.(js|mjs)$/)
-      .include.add(/node_modules/).end()
-      // TODO: 处理 tnpm 下 @babel/runtime 路径变更问题
-      .exclude
-        .add(/@babel(?:\/|\\{1,2})runtime/)
-        .add(/(react|react-dom|lodash|echarts|bizcharts|@ant-design\/icons)/)
+      .test(/\.(js|mjs)$/);
+
+  const nodeModulesTransform = config.nodeModulesTransform || {
+    type: 'all',
+    exclude: [],
+  };
+  if (nodeModulesTransform.type === 'all') {
+    const exclude = lodash.uniq([
+      ...TYPE_ALL_EXCLUDE,
+      ...(nodeModulesTransform.exclude || []),
+    ]);
+    const pkgs = excludeToPkgs({ exclude });
+    // prettier-ignore
+    rule
+      .include
+        .add(/node_modules/)
         .end()
-      .use('babel-loader')
-        .loader(require.resolve('babel-loader'))
-        .options(getBabelDepsOpts({
-          cwd,
-          env,
-          config,
-        }));
+      .exclude.add((path) => {
+        return isMatch({ path, pkgs });
+      })
+        .end();
+  } else {
+    const pkgs = {
+      ...es5ImcompatibleVersionsToPkg(),
+      ...excludeToPkgs({ exclude: nodeModulesTransform.exclude || [] }),
+    };
+    rule.include
+      .add((path) => {
+        return isMatch({
+          path,
+          pkgs,
+        });
+      })
+      .end();
+  }
+
+  rule.use('babel-loader').loader(require.resolve('babel-loader')).options(
+    getBabelDepsOpts({
+      cwd,
+      env,
+      config,
+    }),
+  );
 
   // prettier-ignore
   webpackConfig.module
@@ -410,7 +451,7 @@ export default async function getConfig(
   }
   // 用户配置的 chainWebpack 优先级最高
   if (config.chainWebpack) {
-    config.chainWebpack(webpackConfig, {
+    await config.chainWebpack(webpackConfig, {
       env,
       webpack: bundleImplementor,
       createCSSRule: createCSSRuleFn,

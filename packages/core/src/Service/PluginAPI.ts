@@ -78,6 +78,7 @@ export default class PluginAPI {
       hook.fn && typeof hook.fn === 'function',
       `api.register() failed, hook.fn must supplied and should be function, but got ${hook.fn}.`,
     );
+
     this.service.hooksByPluginId[this.id] = (
       this.service.hooksByPluginId[this.id] || []
     ).concat(hook);
@@ -162,6 +163,7 @@ export default class PluginAPI {
         return;
       }
     }
+
     this.service.pluginMethods[name] =
       fn ||
       // 这里不能用 arrow function，this 需指向执行此方法的 PluginAPI
@@ -171,9 +173,16 @@ export default class PluginAPI {
           key: name,
           ...(utils.lodash.isPlainObject(fn) ? fn : { fn }),
         };
+
         // @ts-ignore
         this.register(hook);
       };
+    if (name === 'addRuntimePlugin') {
+      console.log('plugin id::', this.id);
+      console.log('method name::', name);
+      // console.log('hook key ::',hook.key)
+      console.log('hook fn ::', this.service.pluginMethods[name]);
+    }
   }
 
   skipPlugins(pluginIds: string[]) {

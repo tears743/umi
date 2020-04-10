@@ -58,5 +58,8 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/umijs/umi.git"
+  },
+  "dependencies": {
+    "@umijs/plugin-qiankun": "^2.1.0"
   }
 }

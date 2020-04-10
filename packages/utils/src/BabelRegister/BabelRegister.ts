@@ -22,6 +22,7 @@ export default class BabelRegister {
         }, [])
         .map(winPath),
     );
+    console.log('only', only);
     require('@babel/register')({
       presets: [require.resolve('@umijs/babel-preset-umi/node')],
       ignore: [/node_modules/],

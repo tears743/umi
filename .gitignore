@@ -12,3 +12,4 @@
 .umi-test
 **/fixtures/**/dist
 .now
+.history/

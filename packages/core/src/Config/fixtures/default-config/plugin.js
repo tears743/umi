@@ -13,6 +13,7 @@ module.exports = (api) => {
   });
 
   api.modifyDefaultConfig(memo => {
+    console.log('memo::::',memo)
     memo.plugin.foo += '-bar';
     return memo;
   });

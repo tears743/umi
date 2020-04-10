@@ -227,6 +227,7 @@ export default class Service extends EventEmitter {
       type: this.ApplyPluginsType.modify,
       initialValue: await this.configInstance.getDefaultConfig(),
     });
+    // console.log('defaultConfig',defaultConfig)
     this.config = await this.applyPlugins({
       key: 'modifyConfig',
       type: this.ApplyPluginsType.modify,
@@ -482,6 +483,8 @@ ${name} from ${plugin.path} register failed.`);
               before: hook.before,
             },
             async (memo: any) => {
+              console.log('memo', memo);
+              console.log('hook:', hook);
               return await hook.fn(memo, opts.args);
             },
           );

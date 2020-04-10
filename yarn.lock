@@ -1501,7 +1501,7 @@
   dependencies:
     regenerator-runtime "^0.13.2"
 
-"@babel/runtime@^7.8.7":
+"@babel/runtime@^7.5.5", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.7":
   version "7.9.2"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.9.2.tgz#d90df0583a3a252f09aaa619665367bae518db06"
   integrity sha512-NE2DtOdufG7R5vnfQUTehdTfNycfUANEtCa9PssN9O/xmTzP4E08UI797ixaei6hBEVL9BI/PsdJS5x7mWoB9Q==
@@ -3581,6 +3581,17 @@
   resolved "https://registry.yarnpkg.com/@umijs/plugin-analytics/-/plugin-analytics-0.2.0.tgz#446098e79eb9ea6d9b168b6a302fc4921a776b08"
   integrity sha512-M0TWE/9pYIarxTs5RFoRCQrhG1x6MyURLMBTQoEVuVcJVgmeXP2P6khdoCcKXvGHdDRU48mec3ejJNShv6pGgw==
 
+"@umijs/plugin-qiankun@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@umijs/plugin-qiankun/-/plugin-qiankun-2.1.0.tgz#b0d5596af28d3f00913831af818bf39ee08d4b80"
+  integrity sha512-rUiXnl83tPnbKtFCYu9qZ3Kd9fcGY7gmrggrLWe8CoaGG3Kk2GJeGlXb1eQ8fFSECxHSY74sPhRoMLu5QANAwQ==
+  dependencies:
+    "@babel/runtime" "^7.4.5"
+    address "^1.1.2"
+    lodash "^4.17.15"
+    path-to-regexp "^1.7.0"
+    qiankun "^1.4.2"
+
 "@umijs/preset-dumi@^1.0.11":
   version "1.0.11"
   resolved "https://registry.yarnpkg.com/@umijs/preset-dumi/-/preset-dumi-1.0.11.tgz#2da630ad8604f7a5292509ee4622f1f719953607"
@@ -3862,7 +3873,7 @@ acorn@^7.1.0:
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-7.1.0.tgz#949d36f2c292535da602283586c2477c57eb2d6c"
   integrity sha512-kL5CuoXA/dgxlBbVrflsflzQ3PAas7RYZB52NOm/6839iVYJgKMJ3cQJD+t2i5+qFa8h3MDpEOJiS64E8JLnSQ==
 
-address@1.1.2:
+address@1.1.2, address@^1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/address/-/address-1.1.2.tgz#bf1116c9c758c51b7a933d296b72c221ed9428b6"
   integrity sha512-aT6camzM4xEA54YVJYSqxz1kv4IHnQZRtThJJHhUMRExaU5spC7jX5ugSwTaTgJliIgs4VhZOk7htClvQ/LmRA==
@@ -8508,6 +8519,13 @@ import-from@^2.1.0:
   dependencies:
     resolve-from "^3.0.0"
 
+import-html-entry@^1.4.1:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/import-html-entry/-/import-html-entry-1.5.1.tgz#7901f101720bfc3200b4e21878ed187322d352b3"
+  integrity sha512-Nw1ptkU+SJED52ztInck3FbDoHXfm8ayfmpmP3opGS+ABp/CQL910wycQ2XmWTyqnewHIXH48DlLZI/C4yPw3A==
+  dependencies:
+    "@babel/runtime" "^7.7.2"
+
 import-lazy@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/import-lazy/-/import-lazy-2.1.0.tgz#05698e3d45c88e8d7e9d92cb0584e77f096f3e43"
@@ -13124,6 +13142,17 @@ q@^1.1.2, q@^1.5.1:
   resolved "https://registry.yarnpkg.com/q/-/q-1.5.1.tgz#7e32f75b41381291d04611f1bf14109ac00651d7"
   integrity sha1-fjL3W0E4EpHQRhHxvxQQmsAGUdc=
 
+qiankun@^1.4.2:
+  version "1.4.5"
+  resolved "https://registry.yarnpkg.com/qiankun/-/qiankun-1.4.5.tgz#c309d69b0037163ab47bfcbc96d993d0111ef7e3"
+  integrity sha512-FjjO5EA2fY02D9zO4BvJ41gVKovDiNxHPe/x2nBubU6/P8DWTSSdqU7XypwRRAODa9KgFuW7Ki9ebq1FSRVCgQ==
+  dependencies:
+    "@babel/runtime" "^7.5.5"
+    import-html-entry "^1.4.1"
+    lodash "^4.17.11"
+    single-spa "^4.4.3"
+    tslib "^1.10.0"
+
 qs@6.7.0:
   version "6.7.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.7.0.tgz#41dc1a015e3d581f1621776be31afb2876a9b1bc"
@@ -14448,6 +14477,11 @@ simple-swizzle@^0.2.2:
   integrity sha1-pNprY1/8zMoz9w0Xy5JZLeleVXo=
   dependencies:
     is-arrayish "^0.3.1"
+
+single-spa@^4.4.3:
+  version "4.4.3"
+  resolved "https://registry.yarnpkg.com/single-spa/-/single-spa-4.4.3.tgz#4dff3a17f633b732691cff25cf0bf0897ecdfd37"
+  integrity sha512-xpbCMrA3TtzJkjiq6zwxZQTqBTWtUrq4IDZWT+tOba+FgbFSrvCDCmHhadxDO9fm3JBuyELvKoS8qD73gUIh9Q==
 
 sisteransi@^1.0.4:
   version "1.0.4"

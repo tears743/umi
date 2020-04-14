@@ -340,8 +340,113 @@ constructor(opts: IServiceOpts) {
 ```
 ### 初始化配置与获取用户配置
 
+---
+    通过上面的分析，我们已经知道加载配置的代码在哪里，下面我们详细看下：
+
+``` javascript
+// /core/Service.ts
+// 构造一个config实例
+ this.configInstance = new Config({
+      cwd: this.cwd,
+      service: this,
+      localConfig: this.env === 'development',
+    });
+    // 获取用户配置
+    this.userConfig = this.configInstance.getUserConfig();
+    logger.debug('userConfig:');
+    logger.debug(this.userConfig);
+// 回忆下在使用umi时，会有几种配置方式以文件的形式存在，下面我们看下Config和其中的getUserConfig方法
 ```
-// todo
+---
+```javascript
+// /core/Config/Config.ts
+// 构造函数
+constructor(opts: IOpts) {
+    // 设置路径
+    this.cwd = opts.cwd || process.cwd();
+    // service 设置
+    this.service = opts.service;
+    // 本地配置标志
+    this.localConfig = opts.localConfig;
+  }
+  // 配置实例的构造比较简单，我们看下获取用户配置的代码
+```
+---
+```javascript
+// /core/Config/Config.ts
+
+    getUserConfig() {
+    // 获取配置文件，此方法在后面贴
+    const configFile = this.getConfigFile();
+    this.configFile = configFile;
+    // 潜在问题：
+    // .local 和 .env 的配置必须有 configFile 才有效
+    if (configFile) {
+      let envConfigFile;
+      if (process.env.UMI_ENV) {
+          //配置文件加前缀（这一特性可能是为了区分不同环境用的）
+        envConfigFile = this.addAffix(configFile, process.env.UMI_ENV);
+        if (!existsSync(join(this.cwd, envConfigFile))) {
+          throw new Error(
+            `get user config failed, ${envConfigFile} does not exist, but process.env.UMI_ENV is set to ${process.env.UMI_ENV}.`,
+          );
+        }
+      }
+      const files = [
+        configFile,
+        envConfigFile,
+        this.localConfig && this.addAffix(configFile, 'local'),
+      ]
+        .filter((f): f is string => !!f)
+        .map((f) => join(this.cwd, f))
+        .filter((f) => existsSync(f));
+
+      // clear require cache and set babel register
+      // 配置文件读入并载入依赖
+      const requireDeps = files.reduce((memo: string[], file) => {
+          // 依赖合并（crequire）
+        memo = memo.concat(parseRequireDeps(file));
+        return memo;
+      }, []);
+      // 将依赖做babel转码
+      requireDeps.forEach(cleanRequireCache);
+      this.service.babelRegister.setOnlyMap({
+        key: 'config',
+        value: requireDeps,
+      });
+
+      // require config and merge
+      // 做配置合并
+      return this.mergeConfig(...this.requireConfigs(files));
+    } else {
+        // 没有用户配置文件返回空对象
+      return {};
+    }
+  }
+  //用户配置文件名
+  const CONFIG_FILES = [
+  '.umirc.ts',
+  '.umirc.js',
+  'config/config.ts',
+  'config/config.js',
+];
+getConfigFile(): string | null {
+    // TODO: support custom config file
+    // 判断当前路径下是否存在用户自定义配置文件就是CONFIG_FILES了，
+    const configFile = CONFIG_FILES.find((f) => existsSync(join(this.cwd, f)));
+    // windows路径兼容
+    return configFile ? winPath(configFile) : null;
+  }
+
+  // 用户配置的加载分析基本完成，总结一下
+  /*
+  1、配置构造主要设置配置上下文，包括service，path等
+  2、预定几个用户配置文件路径进行查找
+  3、加载配置依赖，并进行babel转码
+  4、读入并合并配置，这里在读入的时候调用了cojmpatESModuleRequire的泛型方法，主要作用是对
+  es模块做适配，这里涉及到babel的模块机制，大家感兴趣可以自行baidu进行了解。
+
+  */
 ```
     
 
